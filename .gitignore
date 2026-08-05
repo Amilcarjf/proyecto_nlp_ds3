@@ -1,0 +1,36 @@
+# Bytecode y cache de Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Datos: el corpus (AG News, etc.) no se versiona, se descarga/genera localmente
+data/raw/*
+data/interim/*
+data/processed/*
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+
+# Logs de ejecución
+outputs/logs/*
+!outputs/logs/.gitkeep
+
+# Variables de entorno / credenciales
+.env
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editores / IDEs
+.vscode/
+.idea/
