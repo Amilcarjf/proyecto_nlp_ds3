@@ -12,13 +12,9 @@ ENV/
 # Jupyter
 .ipynb_checkpoints/
 
-# Datos: el corpus (AG News, etc.) no se versiona, se descarga/genera localmente
-data/raw/*
+# Datos intermedios: no se versionan, son artefactos de trabajo transitorios
 data/interim/*
-data/processed/*
-!data/raw/.gitkeep
 !data/interim/.gitkeep
-!data/processed/.gitkeep
 
 # Logs de ejecución
 outputs/logs/*
