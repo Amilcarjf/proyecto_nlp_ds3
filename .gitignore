@@ -3,6 +3,11 @@ __pycache__/
 *.py[cod]
 *.pyo
 
+# Artefactos de instalación editable (pip install -e .)
+*.egg-info/
+build/
+dist/
+
 # Entornos virtuales
 venv/
 env/
