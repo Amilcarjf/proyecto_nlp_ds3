@@ -1,0 +1,9 @@
+metrica,valor
+accuracy,0.88
+precision_macro,0.8812932026494922
+recall_macro,0.8799999999999999
+f1_macro,0.8803904528051365
+tiempo_entrenamiento_segundos,78.58075952529907
+parametros_totales,67697672.0
+parametros_entrenables,741124.0
+porcentaje_entrenable,1.0947555183286066
