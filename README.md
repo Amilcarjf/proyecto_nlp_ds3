@@ -62,7 +62,8 @@ Realizar un análisis exploratorio del corpus AG News y desarrollar un pipeline 
 3. Tokenización utilizando el modelo `en_core_web_sm` de spaCy.
 4. Eliminación de signos de puntuación y stopwords.
 5. Lematización de los términos.
-6. Eliminación de un conjunto específico de términos considerados ruido (agencias de noticias, etiquetas HTML y otros artefactos técnicos, identificado durante el EDA).
+6. Decodificación de entidades HTML escapadas y posterior eliminación de etiquetas HTML.
+7. Eliminación de un conjunto específico de términos considerados ruido (agencias de noticias y otros artefactos técnicos, identificado durante el EDA). El conjunto completo se detalla en el informe de `reports/entrega_02`.
 
 ### Corpus
 
@@ -80,11 +81,21 @@ El corpus utilizado contiene 8.000 documentos de entrenamiento distribuidos unif
 
 Los n-gramas más frecuentes representan principalmente entidades geográficas, económicas y políticas, coherentes con la temática periodística del corpus.
 
+### Corrección posterior: ruido HTML/CSS en el preprocesamiento
+
+La validación inicial de `preprocess_text()` no tuvo la robustez necesaria: el análisis de trigramas reveló términos residuales de formato HTML/CSS (por ejemplo, "ms sans serif", "verdana ms sans"), provenientes de etiquetas HTML almacenadas mediante entidades escapadas que la limpieza original no reconocía como tags completos. El bigrama top-20 no se vio afectado — el problema se concentró exclusivamente en el top-20 de trigramas.
+
+Se corrigió el pipeline incorporando la decodificación de entidades HTML *antes* de eliminar las etiquetas de formato, y se volvió a ejecutar el Notebook 02 completo. Los nuevos trigramas confirmaron que los residuos HTML/CSS dejaron de aparecer. El corpus corregido se exportó con un nombre distinto al histórico (`data/processed/ag_news_train_processed_limpio.csv` / `ag_news_test_processed_limpio.csv`), para no sobrescribir los archivos que ya habían sido consumidos por las Entregas 3 y 4.
+
+Se decidió **no** reentrenar retrospectivamente los modelos de las Entregas 3 y 4 sobre el corpus corregido, para evitar sesgar los resultados retrospectivamente en busca de un desempeño más favorable a posteriori. Ambas ramas (TF-IDF + Regresión Logística y DistilBERT + LoRA) siguen entrenadas y evaluadas sobre la misma versión del corpus original, preservando la comparabilidad entre ellas. Esta limitación queda documentada como restricción metodológica y como base de hipótesis para una futura expansión del proyecto (ver `docs/00_documento_arquitectura/`).
+
 ### Artefactos generados
 
-- `data/processed/ag_news_train_processed.csv`, `data/processed/ag_news_test_processed.csv`
+- `data/processed/ag_news_train_processed.csv`, `data/processed/ag_news_test_processed.csv` — corpus histórico, utilizado por las Entregas 3 y 4.
+- `data/processed/ag_news_train_processed_limpio.csv`, `data/processed/ag_news_test_processed_limpio.csv` — corpus corregido (limpieza HTML/CSS robusta), no consumido todavía por ningún modelo.
+- `outputs/tables/top_50_palabras.csv`, `top_20_bigramas.csv`, `top_20_trigramas.csv` — tablas recalculadas sobre el corpus corregido.
 - `outputs/figures/` — distribución de clases, distribución de longitud de documentos.
-- `reports/entrega_02/EDA_NLP_FernándezAmilcar.pdf` — informe técnico de la entrega.
+- `reports/entrega_02/EDA_NLP_FernándezAmilcar.PDF` — informe técnico de la entrega, con la comparación completa de n-gramas antes/después de la corrección.
 
 ## Entrega 3 — Baseline TF-IDF + Regresión Logística
 
@@ -140,6 +151,8 @@ Configuración adoptada: **`max_features=10000`, `ngram_range=(1,1)`**. El vecto
 ### Limitación metodológica documentada
 
 Seleccionar la configuración del vectorizador usando el propio test habría introducido un sesgo optimista en la métrica final; por eso la selección se hizo sobre un conjunto de validación separado del train, dejando el test reservado exclusivamente para la evaluación del modelo ya definido.
+
+Este modelo fue entrenado sobre el corpus histórico de la Entrega 2 (`ag_news_*_processed.csv`), que contenía ruido técnico HTML/CSS no filtrado — ver "Corrección posterior" en la sección de Entrega 2 para el detalle completo y la justificación de por qué no se reentrenó sobre el corpus corregido.
 
 ## Entrega 4 — Transformer + LoRA
 
@@ -223,7 +236,11 @@ En estas condiciones, el incremento de complejidad del Transformer no se tradujo
 - `outputs/figures/matriz_confusion_transformer_lora.png`
 - `outputs/tables/metricas_transformer_lora.csv`
 - `outputs/tables/predicciones_transformer_lora.csv`
-- `reports/entrega_04/Fernández_Amilcar_Checkpoint_NLP3.pdf` — informe técnico de la pre-entrega.
+- `reports/entrega_04/Fernández_Amilcar_Checkpoint_NLP3.PDF` — informe técnico de la pre-entrega.
+
+### Limitación metodológica documentada
+
+Al igual que el baseline de la Entrega 3, este modelo fue entrenado y evaluado sobre el corpus histórico de la Entrega 2 (`ag_news_*_processed.csv`) — ver "Corrección posterior" en la sección de Entrega 2. Como ambas ramas (TF-IDF y Transformer) comparten la misma versión del corpus, la comparación entre ellas sigue siendo válida dentro de las condiciones originales del experimento; lo que queda como pregunta abierta es si el resultado de esta comparación se sostendría sobre el corpus corregido, no la comparación en sí.
 
 ## Instalación
 
