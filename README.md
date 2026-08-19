@@ -242,6 +242,46 @@ En estas condiciones, el incremento de complejidad del Transformer no se tradujo
 
 Al igual que el baseline de la Entrega 3, este modelo fue entrenado y evaluado sobre el corpus histórico de la Entrega 2 (`ag_news_*_processed.csv`) — ver "Corrección posterior" en la sección de Entrega 2. Como ambas ramas (TF-IDF y Transformer) comparten la misma versión del corpus, la comparación entre ellas sigue siendo válida dentro de las condiciones originales del experimento; lo que queda como pregunta abierta es si el resultado de esta comparación se sostendría sobre el corpus corregido, no la comparación en sí.
 
+## Notebook 05 — Comparación final de modelos
+
+Notebook: `notebooks/05_comparacion_final.ipynb`
+
+### Objetivo
+
+Consolidar en un único análisis la comparación entre las dos ramas de clasificación desarrolladas en las Entregas 3 y 4 (TF-IDF + Regresión Logística vs. DistilBERT + LoRA), verificando primero la comparabilidad de ambas evaluaciones y sintetizando después los resultados en tablas y figuras unificadas.
+
+### Verificación de comparabilidad
+
+Antes de comparar métricas, se verificó que ambas ramas fueron evaluadas sobre el mismo conjunto de test (2.000 documentos, 500 por clase) y sobre la misma versión del corpus (histórico, `ag_news_*_processed.csv` — ver "Corrección posterior" en la sección de Entrega 2). Las métricas por clase del Transformer se recalcularon con `classification_report()` sobre `predicciones_transformer_lora.csv` en lugar de reutilizar valores ya reportados en el PDF de la Entrega 4, para evitar errores de transcripción y asegurar reproducibilidad.
+
+### Resultados comparativos
+
+| Métrica | TF-IDF + Regresión Logística | DistilBERT + LoRA |
+|---|---|---|
+| Accuracy | 0,8930 | 0,8800 |
+| Precision macro | 0,8932 | 0,8813 |
+| Recall macro | 0,8930 | 0,8800 |
+| F1-Score macro | 0,8930 | 0,8804 |
+
+`Sports` es la categoría mejor diferenciada en ambos modelos (481/500 y 480/500 respectivamente). La principal dificultad se concentra, en los dos casos, entre `Business` y `Sci_Tech`, con una confusión algo mayor en el Transformer (46 y 58 documentos cruzados entre ambas clases, frente a 40 y 42 en el baseline).
+
+### Análisis de desacuerdos — limitación documentada
+
+No fue posible construir un análisis de desacuerdos a nivel de documento individual entre ambos modelos, porque el Notebook 03 (baseline) nunca persistió sus predicciones por documento — solo las métricas agregadas. Esta limitación queda registrada como requisito para notebooks futuros: persistir siempre las predicciones crudas, no solo las métricas derivadas.
+
+### Comparación de costo computacional — limitación documentada
+
+Por el mismo motivo, tampoco es posible comparar tiempos de entrenamiento ni cantidad de parámetros entre ambas ramas de forma simétrica: el Notebook 03 no persistió esa información. Del Transformer se cuenta con el dato completo: 78,58 s de entrenamiento y 741.124 parámetros entrenables sobre un total de 67.697.672 (1,0948 %).
+
+### Conclusión técnica
+
+En las condiciones evaluadas, el baseline clásico (TF-IDF + Regresión Logística) obtuvo un desempeño global levemente superior al Transformer ajustado con LoRA. El resultado es consistente con la hipótesis ya registrada en la Entrega 4: el corpus de entrada (`text_processed`, lematizado y sin stopwords) favorece a un modelo de bolsa de palabras y le resta al Transformer parte del contexto que un modelo preentrenado aprovecha mejor. Este hallazgo se incorpora como base de dos hipótesis de segunda ronda para la expansión del proyecto (Documento 00): evaluar el Transformer sobre el corpus sin normalización lingüística, y evaluar el impacto de la limpieza HTML/CSS robusta (Entrega 2) sobre ambas ramas.
+
+### Artefactos generados
+
+- `outputs/tables/metricas_clases_unificadas.csv`, `outputs/tables/metricas_globales_unificadas.csv`
+- `outputs/figures/comparacion_metricas_globales.png`, `comparacion_precision_por_categoria.png`, `comparacion_recall_por_categoria.png`, `comparacion_f1_por_categoria.png`
+
 ## Instalación
 
 ```bash
